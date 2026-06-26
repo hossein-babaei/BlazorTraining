@@ -1,9 +1,21 @@
 using BlazorTraining.Components;
+using BlazorTraining.Data.Context;
+using BlazorTraining.IoC;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents();
+
+var configuration = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build();
+builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.RegisterServices();
 
 var app = builder.Build();
 

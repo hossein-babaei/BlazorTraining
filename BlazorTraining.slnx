@@ -1,3 +1,6 @@
 <Solution>
+  <Project Path="BlazorTraining.Data/BlazorTraining.Data.csproj" />
+  <Project Path="BlazorTraining.Domain/BlazorTraining.Domain.csproj" />
+  <Project Path="BlazorTraining.IoC/BlazorTraining.IoC.csproj" />
   <Project Path="BlazorTraining/BlazorTraining.csproj" />
 </Solution>
