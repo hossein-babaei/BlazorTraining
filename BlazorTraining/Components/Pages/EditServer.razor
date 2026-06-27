@@ -1,0 +1,45 @@
+﻿@page "/server/edit/{id:int}"
+@inherits OwningComponentBase<IServerRepository>
+
+<h3>EditServer </h3>
+
+<div class="container-sm">
+    @if (ServerItem is not null)
+    {
+        <EditForm Model="ServerItem">
+            <AntiforgeryToken />
+            @* <div class="mb-3">
+                <label for="" class="form-label"></label>
+                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
+            </div>
+            <div class="mb-3">
+                <label for="exampleInputPassword1" class="form-label">Password</label>
+                <input type="password" class="form-control" id="exampleInputPassword1">
+            </div>
+            <div class="mb-3 form-check">
+                <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                <label class="form-check-label" for="exampleCheck1">Check me out</label>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button> *@
+        </EditForm>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            سرور مورد نظر یافت نشد
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int ServerId { get; set; }
+    
+    private Server? ServerItem;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        ServerItem = await Service.Get(ServerId);
+    }
+}

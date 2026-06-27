@@ -6,6 +6,7 @@ namespace BlazorTraining.Domain.Interfaces
     {
         Task<Server> Get(int id);
         Task<Server> Get(string id);
+        Task<List<Server>> GetAll();
         IQueryable<Server> Query();
         void Update(Server obj);
         void Create(Server obj);

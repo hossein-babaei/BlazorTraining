@@ -45,5 +45,10 @@ namespace BlazorTraining.Data.Repository
         {
             db.Server.Update(obj);
         }
+
+        public async Task<List<Server>> GetAll()
+        {
+            return await db.Server.AsNoTracking().ToListAsync();
+        }
     }
 }
