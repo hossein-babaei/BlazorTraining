@@ -1,0 +1,20 @@
+﻿@inject IServerRepository ServerRepository
+
+<ul class="list-group">
+    @foreach (var item in servers)
+    {
+        <li class="list-group-item">
+            The <b>@item.Name</b> server located in <b>@item.Region</b> and
+            <span class="@(item.ActiveStatus ? "text-success" : "text-danger")">@(item.ActiveStatus ? "Active" : "Not Active")</span> |
+            <a class="btn btn-info btn-sm" href="/servers/edit/@item.Id">Edit</a>
+        </li>
+    }
+</ul>
+
+@code {
+    private List<Server> servers = new();
+    protected override async Task OnInitializedAsync()
+    {
+        servers = await ServerRepository.GetAll();
+    }
+}

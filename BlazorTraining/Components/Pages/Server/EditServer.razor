@@ -1,0 +1,77 @@
+﻿@page "/servers/edit/{ServerId:int}"
+@inject NavigationManager Navigation
+@inject IServerRepository ServerRepository
+
+<h3>EditServer </h3>
+
+<div class="container-sm">
+    @if (ServerItem is not null)
+    {
+        <EditForm Model="ServerItem" OnValidSubmit="SubmitForm" FormName="EditServer">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <InputNumber @bind-Value="ServerItem.Id" hidden></InputNumber>
+            <InputHidden @bind-Value="ServerItem.RowId"></InputHidden>
+            <div class="row mb-3">
+                <div class="col-md-6 col-12">
+                    <label for="ServerItem.Name" class="form-label">Server Name</label>
+                    <InputText @bind-Value="ServerItem.Name" class="form-control"></InputText>
+                </div>
+                <div class="col-md-6 col-12">
+                    <ValidationMessage For="() => ServerItem.Name"></ValidationMessage>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6 col-12">
+                    <label for="ServerItem.Region" class="form-label">Server Region</label>
+                    <InputText @bind-Value="ServerItem.Region" class="form-control"></InputText>
+                </div>
+                <div class="col-md-6 col-12 ">
+                    <ValidationMessage For="() => ServerItem.Region"></ValidationMessage>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="form-check">
+                        <InputCheckbox @bind-Value="ServerItem.ActiveStatus" class="form-check-input"></InputCheckbox>
+                        <label class="form-check-label" for="ServerItem.ActiveStatus">Is Active?</label>
+                    </div>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">Submit Changes</button>
+                    <a class="btn btn-danger ml-3" href="/servers">Back To List</a>
+                </div>
+            </div>
+        </EditForm>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            Your Requested Server Not Found!
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int ServerId { get; set; }
+
+    [SupplyParameterFromForm]
+    private Server? ServerItem { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        ServerItem ??= await ServerRepository.Get(ServerId);
+    }
+
+    private async Task SubmitForm()
+    {
+        if (ServerItem is not null)
+        {
+            ServerRepository.Update(ServerItem);
+            await ServerRepository.Save();
+            Navigation.NavigateTo("/servers");
+        }
+    }
+}
