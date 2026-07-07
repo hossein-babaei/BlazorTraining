@@ -11,11 +11,11 @@ namespace BlazorTraining.Domain.Models
 
         [Required]
         [StringLength(32)]
-        public required string Name { get; set; }
+        public string Name { get; set; }
 
         [Required]
         [StringLength(32)]
-        public required string Region { get; set; }
+        public string Region { get; set; }
 
         [Required]
         public bool ActiveStatus { get; set; } = false;

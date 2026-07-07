@@ -1,0 +1,68 @@
+﻿@page "/ServerItems/create"
+@inject NavigationManager navigationManager
+@inject IServerRepository ServerItemRepository
+
+<PageTitle>Create New Server</PageTitle>
+
+<h3>Create New Server</h3>
+
+<div class="container-sm">
+    <EditForm Model="ServerItem" OnValidSubmit="SubmitCreateServer" FormName="CreateServerForm">
+        <DataAnnotationsValidator></DataAnnotationsValidator>
+        <div class="row mb-3">
+            <div class="col-md-6 col-12">
+                <label for="ServerItem.Name" class="form-label">Server Name</label>
+                <InputText @bind-Value="ServerItem.Name" class="form-control"></InputText>
+            </div>
+            <div class="col-md-6 col-12">
+                <ValidationMessage For="() => ServerItem.Name"></ValidationMessage>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6 col-12">
+                <label for="ServerItem.Region" class="form-label">Server Region</label>
+                <InputText @bind-Value="ServerItem.Region" class="form-control"></InputText>
+            </div>
+            <div class="col-md-6 col-12 ">
+                <ValidationMessage For="() => ServerItem.Region"></ValidationMessage>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="form-check">
+                    <InputCheckbox @bind-Value="ServerItem.ActiveStatus" class="form-check-input"></InputCheckbox>
+                    <label class="form-check-label" for="ServerItem.ActiveStatus">Is Active?</label>
+                </div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">Create Server</button>
+                <a class="btn btn-danger ml-3" href="/ServerItems">Back To List</a>
+            </div>
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Server ServerItem { get; set; } = new Server
+    {
+        ActiveStatus = false
+    };
+
+    private async Task SubmitCreateServer()
+    {
+        ServerItemRepository.Create(ServerItem);
+        try
+        {
+            await ServerItemRepository.Save();
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+
+        navigationManager.NavigateTo("/ServerItem");
+    }
+}

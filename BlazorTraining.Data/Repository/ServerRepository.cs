@@ -48,7 +48,7 @@ namespace BlazorTraining.Data.Repository
 
         public async Task<List<Server>> GetAll()
         {
-            return await db.Server.AsNoTracking().ToListAsync();
+            return await db.Server.AsNoTracking().OrderByDescending(a => a.Id).ToListAsync();
         }
     }
 }

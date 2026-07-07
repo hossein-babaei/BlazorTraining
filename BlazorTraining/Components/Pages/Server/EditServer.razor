@@ -1,8 +1,10 @@
 ﻿@page "/servers/edit/{ServerId:int}"
-@inject NavigationManager Navigation
+@inject NavigationManager navigationManager
 @inject IServerRepository ServerRepository
 
-<h3>EditServer </h3>
+<PageTitle>Edit Server</PageTitle>
+
+<h3>Edit Server @ThisServerName</h3>
 
 <div class="container-sm">
     @if (ServerItem is not null)
@@ -57,12 +59,15 @@
     [Parameter]
     public int ServerId { get; set; }
 
+    private string ThisServerName = "";
+
     [SupplyParameterFromForm]
     private Server? ServerItem { get; set; }
 
     protected override async Task OnParametersSetAsync()
     {
         ServerItem ??= await ServerRepository.Get(ServerId);
+        ThisServerName = ServerItem.Name;
     }
 
     private async Task SubmitForm()
@@ -71,7 +76,7 @@
         {
             ServerRepository.Update(ServerItem);
             await ServerRepository.Save();
-            Navigation.NavigateTo("/servers");
+            navigationManager.NavigateTo("/servers");
         }
     }
 }
