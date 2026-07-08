@@ -1,4 +1,5 @@
 ﻿using BlazorTraining.Domain.Models;
+using BlazorTraining.Domain.ViewModels;
 
 namespace BlazorTraining.Domain.Interfaces
 {
@@ -9,7 +10,7 @@ namespace BlazorTraining.Domain.Interfaces
         Task<List<Server>> GetAll();
         IQueryable<Server> Query();
         void Update(Server obj);
-        void Create(Server obj);
+        void Create(CreateServerViewModel obj);
         void Delete(Server obj);
         Task<int> Save();
     }

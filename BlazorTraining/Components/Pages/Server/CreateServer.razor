@@ -1,4 +1,5 @@
-﻿@page "/ServerItems/create"
+﻿@page "/servers/create"
+@using BlazorTraining.Domain.ViewModels
 @inject NavigationManager navigationManager
 @inject IServerRepository ServerItemRepository
 
@@ -38,7 +39,7 @@
         <div class="row mb-3">
             <div class="col-12">
                 <button type="submit" class="btn btn-primary">Create Server</button>
-                <a class="btn btn-danger ml-3" href="/ServerItems">Back To List</a>
+                <a class="btn btn-danger ml-3" href="/servers">Back To List</a>
             </div>
         </div>
     </EditForm>
@@ -46,10 +47,12 @@
 
 @code {
     [SupplyParameterFromForm]
-    private Server ServerItem { get; set; } = new Server
+    private CreateServerViewModel? ServerItem { get; set; }
+
+    protected override void OnInitialized()
     {
-        ActiveStatus = false
-    };
+        ServerItem ??= new();
+    }
 
     private async Task SubmitCreateServer()
     {
@@ -63,6 +66,6 @@
             throw;
         }
 
-        navigationManager.NavigateTo("/ServerItem");
+        navigationManager.NavigateTo("/servers");
     }
 }

@@ -1,20 +1,60 @@
 ﻿@inject IServerRepository ServerRepository
+@inject NavigationManager navigationManager
+@attribute [StreamRendering]
 
-<ul class="list-group">
-    @foreach (var item in servers)
-    {
-        <li class="list-group-item">
-            The <b>@item.Name</b> server located in <b>@item.Region</b> and
-            <span class="@(item.ActiveStatus ? "text-success" : "text-danger")">@(item.ActiveStatus ? "Active" : "Not Active")</span> |
-            <a class="btn btn-info btn-sm" href="/servers/edit/@item.Id">Edit</a>
-        </li>
-    }
-</ul>
+@if (servers is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var item in servers)
+        {
+            <li class="list-group-item">
+                <div class="row">
+                    <div class="col-md-10">
+                        The <b>@item.Name</b> server located in <b>@item.Region</b> and
+                        <span class="@(item.ActiveStatus ? "text-success" : "text-danger")">@(item.ActiveStatus ? "Active" : "Not Active")</span>
+                    </div>
+                    <div class="col-md-1 d-flex justify-content-around">
+                        <a class="btn btn-info btn-sm" href="/servers/edit/@item.Id">Edit</a>
+                    </div>
+                    <div class="col-md-1 d-flex justify-content-around">
+                        <EditForm Model="item" OnSubmit="() => DeleteServer(item.Id)" FormName="@($"DeleteServer-{item.Id}")">
+                            <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
+                        </EditForm>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+}
 
 @code {
-    private List<Server> servers = new();
+    private List<Server>? servers;
+
     protected override async Task OnInitializedAsync()
     {
         servers = await ServerRepository.GetAll();
+    }
+
+    private async Task DeleteServer(int serverId)
+    {
+        var item = await ServerRepository.Get(serverId);
+        if (item is not null)
+        {
+            ServerRepository.Delete(item);
+            try
+            {
+                await ServerRepository.Save();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        navigationManager.Refresh();
     }
 }

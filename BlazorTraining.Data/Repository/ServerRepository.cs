@@ -1,6 +1,7 @@
 ﻿using BlazorTraining.Data.Context;
 using BlazorTraining.Domain.Interfaces;
 using BlazorTraining.Domain.Models;
+using BlazorTraining.Domain.ViewModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlazorTraining.Data.Repository
@@ -16,9 +17,14 @@ namespace BlazorTraining.Data.Repository
             return db.Server.AsQueryable();
         }
 
-        public void Create(Server obj)
+        public void Create(CreateServerViewModel obj)
         {
-            db.Add(obj);
+            db.Add(new Server
+            {
+                Name = obj.Name,
+                Region = obj.Region,
+                ActiveStatus = obj.ActiveStatus
+            });
         }
 
         public void Delete(Server obj)
