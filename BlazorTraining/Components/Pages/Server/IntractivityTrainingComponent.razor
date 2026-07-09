@@ -1,0 +1,25 @@
+﻿<li class="list-group-item">
+    <div class="row">
+        <div class="col-md-10">
+            The <b>@server.Name</b> server located in <b>@server.Region</b> and
+            <span class="@(server.ActiveStatus ? "text-success" : "text-danger")">@(server.ActiveStatus ? "Active" : "Not Active")</span>
+        </div>
+        <div class="col-md-2 d-flex justify-content-around">
+            <button class="btn btn-outline-success btn-sm" @onclick="ChangeStatus">Change Status</button>
+        </div>
+    </div>
+</li>
+
+@code {
+    private Server server = new Server
+    {
+        Name = "Intractive Traning",
+        Region = "Blazor Program.cs",
+        ActiveStatus = true
+    };
+
+    private void ChangeStatus()
+    {
+        server.ActiveStatus = !server.ActiveStatus;
+    }
+}
