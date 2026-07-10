@@ -1,6 +1,7 @@
 ﻿@inject IServerRepository ServerRepository
 @inject NavigationManager navigationManager
 @attribute [StreamRendering]
+@rendermode InteractiveServer
 
 @if (servers is null)
 {
@@ -9,6 +10,15 @@
 else
 {
     <ul class="list-group">
+        <li class="list-group-item">
+            <select class="form-control" @onchange="(e) => FilterByRegionName(e.Value.ToString())">
+                <option value="All" selected>All</option>
+                @foreach (var item in serverRegionNames)
+                {
+                    <option value="@item">@item</option>
+                }
+            </select>
+        </li>
         <IntractivityTrainingComponent @rendermode="InteractiveServer"></IntractivityTrainingComponent>
         @foreach (var item in servers)
         {
@@ -34,10 +44,21 @@ else
 
 @code {
     private List<Server>? servers;
+    private List<string>? serverRegionNames;
 
     protected override async Task OnInitializedAsync()
     {
-        servers = await ServerRepository.GetAll();
+        servers ??= await ServerRepository.GetAll();
+
+        serverRegionNames ??= await ServerRepository.GetServerRegionNames();
+    }
+
+    private async Task FilterByRegionName(string regionName)
+    {
+        if (regionName == "All")
+            servers = await ServerRepository.GetAll();
+        else
+            servers = await ServerRepository.GetAll(regionName);
     }
 
     private async Task DeleteServer(int serverId)

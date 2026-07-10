@@ -56,5 +56,15 @@ namespace BlazorTraining.Data.Repository
         {
             return await db.Server.AsNoTracking().OrderByDescending(a => a.Id).ToListAsync();
         }
+
+        public async Task<List<string>> GetServerRegionNames()
+        {
+            return await db.Server.AsNoTracking().Select(a => a.Region).Distinct().ToListAsync();
+        }
+
+        public async Task<List<Server>> GetAll(string regionName)
+        {
+            return await db.Server.AsNoTracking().Where(a => a.Region.Equals(regionName)).OrderByDescending(a => a.Id).ToListAsync();
+        }
     }
 }
