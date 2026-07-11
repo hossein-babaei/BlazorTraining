@@ -3,13 +3,17 @@
 @attribute [StreamRendering]
 @rendermode InteractiveServer
 
-@if (servers is null)
+@{
+    int i = 1;
+}
+
+@if (serverRegionNames is null)
 {
     <p><em>Loading...</em></p>
 }
 else
 {
-    <ul class="list-group">
+    <ul class="list-group mb-2">
         <li class="list-group-item">
             <select class="form-control" @onchange="(e) => FilterByRegionName(e.Value.ToString())">
                 <option value="All" selected>All</option>
@@ -20,24 +24,36 @@ else
             </select>
         </li>
         <IntractivityTrainingComponent @rendermode="InteractiveServer"></IntractivityTrainingComponent>
+    </ul>
+}
+
+@if (servers is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ul class="list-group">
         @foreach (var item in servers)
         {
             <li class="list-group-item">
                 <div class="row">
                     <div class="col-md-10">
-                        The <b>@item.Name</b> server located in <b>@item.Region</b> and
+                        <b>@i) </b> The <b>@item.Name</b> server located in <b>@item.Region</b> and
                         <span class="@(item.ActiveStatus ? "text-success" : "text-danger")">@(item.ActiveStatus ? "Active" : "Not Active")</span>
                     </div>
                     <div class="col-md-1 d-flex justify-content-around">
                         <a class="btn btn-info btn-sm" href="/servers/edit/@item.Id">Edit</a>
                     </div>
                     <div class="col-md-1 d-flex justify-content-around">
-                        <EditForm Model="item" OnSubmit="() => DeleteServer(item.Id)" FormName="@($"DeleteServer-{item.Id}")">
+                        <button class="btn btn-outline-danger btn-sm" type="button" @onclick="() => DeleteServer(item.Id)">Delete</button>
+                        @* <EditForm Model="item" OnSubmit="() => DeleteServer(item.Id)" FormName="@($"DeleteServer-{item.Id}")">
                             <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
-                        </EditForm>
+                        </EditForm> *@
                     </div>
                 </div>
             </li>
+            i++;
         }
     </ul>
 }
@@ -45,6 +61,7 @@ else
 @code {
     private List<Server>? servers;
     private List<string>? serverRegionNames;
+    private string selectedRegionName = "All";
 
     protected override async Task OnInitializedAsync()
     {
@@ -53,12 +70,18 @@ else
         serverRegionNames ??= await ServerRepository.GetServerRegionNames();
     }
 
-    private async Task FilterByRegionName(string regionName)
+    private async Task GetServerList()
     {
-        if (regionName == "All")
+        if (selectedRegionName == "All")
             servers = await ServerRepository.GetAll();
         else
-            servers = await ServerRepository.GetAll(regionName);
+            servers = await ServerRepository.GetAll(selectedRegionName);
+    }
+
+    private async Task FilterByRegionName(string regionName)
+    {
+        selectedRegionName = regionName;
+        await GetServerList();
     }
 
     private async Task DeleteServer(int serverId)
@@ -70,13 +93,13 @@ else
             try
             {
                 await ServerRepository.Save();
+                await GetServerList();
             }
             catch (Exception)
             {
-
                 throw;
             }
         }
-        navigationManager.Refresh();
+    //     navigationManager.Refresh();
     }
 }

@@ -67,7 +67,9 @@
     protected override async Task OnParametersSetAsync()
     {
         ServerItem ??= await ServerRepository.Get(ServerId);
-        ThisServerName = ServerItem.Name;
+
+        if (ServerItem is not null)
+            ThisServerName = ServerItem.Name;
     }
 
     private async Task SubmitForm()
