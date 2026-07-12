@@ -66,5 +66,11 @@ namespace BlazorTraining.Data.Repository
         {
             return await db.Server.AsNoTracking().Where(a => a.Region.Equals(regionName)).OrderByDescending(a => a.Id).ToListAsync();
         }
+
+        public async Task<List<Server>> GetAllWithQuery(string query)
+        {
+            return await db.Server.AsNoTracking()
+                .Where(a => a.Name.Contains(query) || a.Region.Contains(query)).OrderByDescending(a => a.Id).ToListAsync();
+        }
     }
 }

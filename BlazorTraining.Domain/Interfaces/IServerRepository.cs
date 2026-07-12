@@ -9,6 +9,7 @@ namespace BlazorTraining.Domain.Interfaces
         Task<Server> Get(string id);
         Task<List<Server>> GetAll();
         Task<List<Server>> GetAll(string regionName);
+        Task<List<Server>> GetAllWithQuery(string query);
         Task<List<string>> GetServerRegionNames();
         IQueryable<Server> Query();
         void Update(Server obj);

@@ -14,6 +14,7 @@
 else
 {
     <ul class="list-group mb-2">
+        @* Filter Servers *@
         <li class="list-group-item">
             <select class="form-control" @onchange="(e) => FilterByRegionName(e.Value.ToString())">
                 <option value="All" selected>All</option>
@@ -23,6 +24,23 @@ else
                 }
             </select>
         </li>
+        @* Search Servers with key down *@
+
+        <li class="list-group-item">
+            <input @bind="searchKeyword" @bind:event="oninput" @onkeyup="SearchServersWithKeyDown" type="text" class="form-control" placeholder="Search servers with keyup...">
+            <p class="@(showSearchPreloader ? "" : "d-none")">Please wait...</p>
+        </li>
+        @* Search Servers with button *@
+
+        <li class="list-group-item">
+            <div class="input-group">
+                <input @bind="searchKeyword" type="text" class="form-control" placeholder="Search servers with button...">
+                <button @onclick="SearchServersWithButton" class="btn btn-outline-secondary" type="button">Search</button>
+            </div>
+            <p class="@(showSearchPreloader ? "" : "d-none")">Please wait...</p>
+        </li>
+
+        @* Interactivity Training *@
         <IntractivityTrainingComponent @rendermode="InteractiveServer"></IntractivityTrainingComponent>
     </ul>
 }
@@ -62,6 +80,8 @@ else
     private List<Server>? servers;
     private List<string>? serverRegionNames;
     private string selectedRegionName = "All";
+    private string searchKeyword = string.Empty;
+    private bool showSearchPreloader = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,6 +104,30 @@ else
         await GetServerList();
     }
 
+    private async Task SearchServersWithButton()
+    { 
+        showSearchPreloader = true;
+
+        await Task.Delay(1000);
+        servers = await ServerRepository.GetAllWithQuery(searchKeyword);
+
+        showSearchPreloader = false;
+    }
+
+    private async Task SearchServersWithKeyDown()
+    {
+        if (searchKeyword.Length > 3 || searchKeyword.Length == 0)
+        {
+            showSearchPreloader = true;
+            await Task.Delay(1000);
+
+            Console.WriteLine(searchKeyword);
+
+            servers = await ServerRepository.GetAllWithQuery(searchKeyword);
+        }
+        showSearchPreloader = false;
+    }
+
     private async Task DeleteServer(int serverId)
     {
         var item = await ServerRepository.Get(serverId);
@@ -100,6 +144,6 @@ else
                 throw;
             }
         }
-    //     navigationManager.Refresh();
+        //     navigationManager.Refresh();
     }
 }
