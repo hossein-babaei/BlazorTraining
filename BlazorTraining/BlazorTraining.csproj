@@ -15,7 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BlazorTraining.Dialog\BlazorTraining.Dialog.csproj" />
     <ProjectReference Include="..\BlazorTraining.IoC\BlazorTraining.IoC.csproj" />
   </ItemGroup>
 

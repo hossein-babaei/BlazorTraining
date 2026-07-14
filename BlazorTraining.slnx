@@ -1,6 +1,5 @@
 <Solution>
   <Project Path="BlazorTraining.Data/BlazorTraining.Data.csproj" />
-  <Project Path="BlazorTraining.Dialog/BlazorTraining.Dialog.csproj" Id="23bbffe3-b340-4721-a849-3da3f508831f" />
   <Project Path="BlazorTraining.Domain/BlazorTraining.Domain.csproj" />
   <Project Path="BlazorTraining.IoC/BlazorTraining.IoC.csproj" />
   <Project Path="BlazorTraining/BlazorTraining.csproj" />
