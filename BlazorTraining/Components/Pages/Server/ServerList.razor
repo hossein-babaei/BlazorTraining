@@ -12,7 +12,11 @@
 
 @if (serverRegionNames is null)
 {
-    <p><em>Loading...</em></p>
+    <div class="text-center">
+        <div class="spinner-grow text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
 }
 else
 {
@@ -31,16 +35,25 @@ else
 
         <li class="list-group-item">
             <input @bind="searchKeyword" @bind:event="oninput" @onkeyup="SearchServersWithKeyDown" type="text" class="form-control" placeholder="Search servers with keyup...">
-            <p class="@(showSearchPreloader ? "" : "d-none")">Please wait...</p>
+            @* <p class="@(showSearchPreloader ? "" : "d-none")">Please wait...</p> *@
         </li>
         @* Search Servers with button *@
 
         <li class="list-group-item">
             <div class="input-group">
                 <input @bind="searchKeyword" type="text" class="form-control" placeholder="Search servers with button...">
-                <button @onclick="SearchServersWithButton" class="btn btn-outline-secondary" type="button">Search</button>
+                <button @onclick="SearchServersWithButton" class="btn btn-outline-secondary" type="button">
+                    @if (showSearchPreloader)
+                    {
+                        <span class="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                        <span role="status">Loading...</span>
+                    }
+                    else
+                    {
+                        <span>Search</span>
+                    }
+                </button>
             </div>
-            <p class="@(showSearchPreloader ? "" : "d-none")">Please wait...</p>
         </li>
 
         @* Interactivity Training *@
@@ -50,7 +63,11 @@ else
 
 @if (servers is null)
 {
-    <p><em>Loading...</em></p>
+    <div class="text-center">
+        <div class="spinner-grow text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
 }
 else
 {
@@ -142,7 +159,7 @@ else
     }
 
     private async Task SearchServersWithButton()
-    { 
+    {
         showSearchPreloader = true;
 
         await Task.Delay(1000);
