@@ -1,0 +1,43 @@
+﻿@using BlazorTraining.Dialog.Models
+
+@if (Reference.Options.Buttons.Count > 0)
+{
+    <div class="modal-footer">
+
+        @foreach (var button in Reference.Options.Buttons)
+        {
+            <button class="@Css(button)"
+                    disabled="@button.Disabled"
+                    @onclick="() => Click(button)">
+
+                @button.Text
+
+            </button>
+        }
+
+    </div>
+}
+
+@code
+{
+    [Parameter]
+    public required DialogReference Reference { get; init; }
+
+    private async Task Click(DialogButton button)
+    {
+        if (button.Callback is not null)
+        {
+            await button.Callback(Reference);
+        }
+
+        if (!button.AutoClose)
+            return;
+
+        await Reference.CloseAsync(
+            DialogResult.Ok(
+                reason: DialogCloseReason.PrimaryButton));
+    }
+
+    private static string Css(DialogButton button)
+        => $"btn btn-{button.Style.ToString().ToLowerInvariant()}";
+}

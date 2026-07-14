@@ -1,7 +1,10 @@
-﻿@inject IServerRepository ServerRepository
+﻿@using BlazorTraining.Dialog.Abstractions
+@using BlazorTraining.Dialog.Models
+@inject IServerRepository ServerRepository
 @inject NavigationManager navigationManager
 @attribute [StreamRendering]
 @rendermode InteractiveServer
+@inject IDialogService DialogService
 
 @{
     int i = 1;
@@ -73,12 +76,15 @@ else
         {
             <li class="list-group-item">
                 <div class="row">
-                    <div class="col-md-10">
+                    <div class="col-md-9">
                         <b>@i) </b> The <b>@item.Name</b> server located in <b>@item.Region</b> and
                         <span class="@(item.ActiveStatus ? "text-success" : "text-danger")">@(item.ActiveStatus ? "Active" : "Not Active")</span>
                     </div>
                     <div class="col-md-1 d-flex justify-content-around">
                         <a class="btn btn-info btn-sm" href="/servers/edit/@item.Id">Edit</a>
+                    </div>
+                    <div class="col-md-1 d-flex justify-content-around">
+                        <a class="btn btn-info btn-sm" @onclick="() => ShowEditModal(item.Id)">Edit Modal</a>
                     </div>
                     <div class="col-md-1 d-flex justify-content-around">
                         <button class="btn btn-outline-danger btn-sm" type="button" @onclick="() => DeleteServer(item.Id)">Delete</button>
@@ -99,6 +105,37 @@ else
     private string selectedRegionName = "All";
     private string searchKeyword = string.Empty;
     private bool showSearchPreloader = false;
+
+    private Type editModalComponentType = typeof(EditServerWithModal);
+    private Dictionary<string, object>? parameters;
+
+    private async Task ShowEditModal(int id)
+    {
+        var server = await ServerRepository.Get(id);
+        if (server is not null)
+        {
+            var dialog =
+            await DialogService.ShowAsync<EditServerWithModal>(
+                p =>
+                {
+                    p.Add(nameof(EditServerWithModal.ServerId), id);
+                },
+                o =>
+                {
+                    o.Title = "Delete Server";
+                    o.Size = DialogSize.Small;
+                });
+
+            var result = await dialog.Result;
+
+            if (!result.Cancelled)
+            {
+                var serverId = (int)result.Data!;
+
+                Console.WriteLine(serverId);
+            }
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {

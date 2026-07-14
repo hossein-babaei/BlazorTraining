@@ -1,6 +1,7 @@
 using BlazorTraining.Components;
 using BlazorTraining.Data.Context;
 using BlazorTraining.Data.DataSeeder;
+using BlazorTraining.Dialog.Extensions;
 using BlazorTraining.IoC;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options
 );
 
 builder.Services.RegisterServices();
+builder.Services.AddBlazorTrainingDialog(opt =>
+{
+    opt.AllowMultipleDialogs = true;
+    opt.DefaultOptions.Title = "Dialog";
+});
 
 var app = builder.Build();
 

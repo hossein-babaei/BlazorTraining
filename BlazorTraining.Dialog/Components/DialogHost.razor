@@ -1,0 +1,29 @@
+﻿@using BlazorTraining.Dialog.Abstractions
+@implements IDisposable
+
+@inject IDialogService DialogService
+
+@if (DialogService.Dialogs.Count > 0)
+{
+    <div class="btd-overlay">
+
+        <DialogRenderTree />
+
+    </div>
+}
+
+@code
+{
+    protected override void OnInitialized()
+    {
+        DialogService.Changed += Refresh;
+    }
+
+    private void Refresh()
+        => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        DialogService.Changed -= Refresh;
+    }
+}

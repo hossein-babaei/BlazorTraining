@@ -1,0 +1,7 @@
+﻿@using BlazorTraining.Dialog.Abstractions
+@inject IDialogService DialogService
+
+@foreach (var dialog in DialogService.Dialogs)
+{
+    <DialogContainer Reference="(DialogReference)dialog" />
+}

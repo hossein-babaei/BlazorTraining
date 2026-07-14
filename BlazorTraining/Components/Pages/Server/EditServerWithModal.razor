@@ -1,0 +1,36 @@
+﻿@inherits BlazorTraining.Dialog.Components.DialogBase
+
+<h4>Delete Server</h4>
+
+<p>
+    Are you sure you want to delete this server?
+</p>
+
+<div class="d-flex gap-2">
+
+    <button class="btn btn-danger"
+            @onclick="Delete">
+
+        Delete
+
+    </button>
+
+    <button class="btn btn-secondary"
+            @onclick="CancelAsync">
+
+        Cancel
+
+    </button>
+
+</div>
+
+@code
+{
+    [Parameter]
+    public int ServerId { get; set; }
+
+    private Task Delete()
+    {
+        return CloseAsync(ServerId);
+    }
+}
