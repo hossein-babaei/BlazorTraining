@@ -1,0 +1,119 @@
+﻿@inject NavigationManager navigationManager
+@inject IServerRepository ServerRepository
+@inject IJSRuntime js
+@rendermode InteractiveServer
+
+@if (Display)
+{
+    <div @key="ServerId" class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Server</h1>
+                    <button @onclick="HandleCloseModal" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-sm">
+                        @if (ServerItem is not null)
+                        {
+                            <EditForm Model="ServerItem" OnValidSubmit="SubmitForm" FormName="EditServer">
+                                <DataAnnotationsValidator></DataAnnotationsValidator>
+                                <InputNumber @bind-Value="ServerItem.Id" hidden></InputNumber>
+                                <InputHidden @bind-Value="ServerItem.RowId"></InputHidden>
+                                <div class="row mb-3">
+                                    <div class="col-md-6 col-12">
+                                        <label for="ServerItem.Name" class="form-label">Server Name</label>
+                                        <InputText @bind-Value="ServerItem.Name" class="form-control"></InputText>
+                                    </div>
+                                    <div class="col-md-6 col-12">
+                                        <ValidationMessage For="() => ServerItem.Name"></ValidationMessage>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-md-6 col-12">
+                                        <label for="ServerItem.Region" class="form-label">Server Region</label>
+                                        <InputText @bind-Value="ServerItem.Region" class="form-control"></InputText>
+                                    </div>
+                                    <div class="col-md-6 col-12 ">
+                                        <ValidationMessage For="() => ServerItem.Region"></ValidationMessage>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <div class="form-check">
+                                            <InputCheckbox @bind-Value="ServerItem.ActiveStatus" class="form-check-input"></InputCheckbox>
+                                            <label class="form-check-label" for="ServerItem.ActiveStatus">Is Active?</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">Submit Changes</button>
+                                        <a class="btn btn-danger ml-3" href="/servers">Back To List</a>
+                                    </div>
+                                </div>
+                            </EditForm>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                Your Requested Server Not Found!
+                            </div>
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button @onclick="HandleCloseModal" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    [EditorRequired]
+    public bool Display { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public int? ServerId { get; set; }
+
+    [Parameter]
+    public EventCallback ModalClosed { get; set; }
+
+    private Server? ServerItem { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        ServerItem ??= ServerId.HasValue ? await ServerRepository.Get(ServerId.Value) : null;
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (Display)
+            js.InvokeVoidAsync("showEditModal", "editModal");
+
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    private async Task HandleCloseModal()
+    {
+        Display = false;
+        ServerId = null;
+        ServerItem = null;
+        await ModalClosed.InvokeAsync();
+    }
+
+    private async Task SubmitForm()
+    {
+        if (ServerItem is not null)
+        {
+            ServerRepository.Update(ServerItem);
+            await ServerRepository.Save();
+            navigationManager.NavigateTo("/servers");
+        }
+    }
+}

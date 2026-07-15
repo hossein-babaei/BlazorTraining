@@ -73,12 +73,15 @@ else
         {
             <li class="list-group-item">
                 <div class="row">
-                    <div class="col-md-10">
+                    <div class="col-md-9">
                         <b>@i) </b> The <b>@item.Name</b> server located in <b>@item.Region</b> and
                         <span class="@(item.ActiveStatus ? "text-success" : "text-danger")">@(item.ActiveStatus ? "Active" : "Not Active")</span>
                     </div>
                     <div class="col-md-1 d-flex justify-content-around">
                         <a class="btn btn-info btn-sm" href="/servers/edit/@item.Id">Edit</a>
+                    </div>
+                    <div class="col-md-1 d-flex justify-content-around">
+                        <button class="btn btn-info btn-sm" @onclick="() => GetEditModal(item.Id)">Edit 2</button>
                     </div>
                     <div class="col-md-1 d-flex justify-content-around">
                         <button class="btn btn-outline-danger btn-sm" type="button" @onclick="() => DeleteServer(item.Id)">Delete</button>
@@ -93,12 +96,19 @@ else
     </ul>
 }
 
+<EditServerModal Display="showEditModalComponent" ServerId="editServerId" ModalClosed="EditModalClosed"></EditServerModal>
+
+<script src="@Assets["components/pages/server/editservermodal.razor.js"]"></script>
+
 @code {
     private List<Server>? servers;
     private List<string>? serverRegionNames;
     private string selectedRegionName = "All";
     private string searchKeyword = string.Empty;
     private bool showSearchPreloader = false;
+
+    private int? editServerId;
+    private bool showEditModalComponent = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -162,5 +172,17 @@ else
             }
         }
         //     navigationManager.Refresh();
+    }
+
+    private void GetEditModal(int serverId)
+    {
+        editServerId = serverId;
+        showEditModalComponent = true;
+    }
+
+    private void EditModalClosed()
+    {
+        editServerId = null;
+        showEditModalComponent = false;
     }
 }
