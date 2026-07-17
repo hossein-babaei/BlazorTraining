@@ -1,11 +1,8 @@
-﻿@inject IServerRepository ServerRepository
+﻿@using BlazorTraining.Domain.ViewModels
+@inject IServerRepository ServerRepository
 @inject NavigationManager navigationManager
 @attribute [StreamRendering]
 @rendermode InteractiveServer
-
-@{
-    int i = 1;
-}
 
 @if (serverRegionNames is null)
 {
@@ -54,51 +51,13 @@ else
         </li>
 
         @* Interactivity Training *@
-        <IntractivityTrainingComponent @rendermode="InteractiveServer"></IntractivityTrainingComponent>
+        @* <IntractivityTrainingComponent @rendermode="InteractiveServer"></IntractivityTrainingComponent> *@
     </ul>
 }
 
-@if (servers is null)
-{
-    <div class="text-center">
-        <div class="spinner-grow text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-        </div>
-    </div>
-}
-else
-{
-    <ul class="list-group">
-        @foreach (var item in servers)
-        {
-            <li class="list-group-item">
-                <div class="row">
-                    <div class="col-md-9">
-                        <b>@i) </b> The <b>@item.Name</b> server located in <b>@item.Region</b> and
-                        <span class="@(item.ActiveStatus ? "text-success" : "text-danger")">@(item.ActiveStatus ? "Active" : "Not Active")</span>
-                    </div>
-                    <div class="col-md-1 d-flex justify-content-around">
-                        <a class="btn btn-info btn-sm" href="/servers/edit/@item.Id">Edit</a>
-                    </div>
-                    <div class="col-md-1 d-flex justify-content-around">
-                        <button class="btn btn-info btn-sm" @onclick="() => GetEditModal(item.Id)">Edit 2</button>
-                    </div>
-                    <div class="col-md-1 d-flex justify-content-around">
-                        <button class="btn btn-outline-danger btn-sm" type="button" @onclick="() => DeleteServer(item.Id)">Delete</button>
-                        @* <EditForm Model="item" OnSubmit="() => DeleteServer(item.Id)" FormName="@($"DeleteServer-{item.Id}")">
-                            <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
-                        </EditForm> *@
-                    </div>
-                </div>
-            </li>
-            i++;
-        }
-    </ul>
-}
+<ServerListContainer Servers="servers" EditServerId="editServerId" ShowEditModalComponent="showEditModalComponent" ServerChanged="GetServerList" EditModalParametersChanged="EditModalParametersChanged"></ServerListContainer>
 
 <EditServerModal Display="showEditModalComponent" ServerId="editServerId" ModalClosed="EditModalClosed"></EditServerModal>
-
-<script src="@Assets["components/pages/server/editservermodal.razor.js"]"></script>
 
 @code {
     private List<Server>? servers;
@@ -155,34 +114,16 @@ else
         showSearchPreloader = false;
     }
 
-    private async Task DeleteServer(int serverId)
+    private void EditModalParametersChanged(ServerEditModalParams data)
     {
-        var item = await ServerRepository.Get(serverId);
-        if (item is not null)
-        {
-            ServerRepository.Delete(item);
-            try
-            {
-                await ServerRepository.Save();
-                await GetServerList();
-            }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
-        //     navigationManager.Refresh();
+        editServerId = data.ServerId;
+        showEditModalComponent = data.ShowEditModalComponent;
     }
 
-    private void GetEditModal(int serverId)
-    {
-        editServerId = serverId;
-        showEditModalComponent = true;
-    }
-
-    private void EditModalClosed()
+    private async Task EditModalClosed()
     {
         editServerId = null;
         showEditModalComponent = false;
+        await GetServerList();
     }
 }

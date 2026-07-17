@@ -16,7 +16,7 @@
                     <div class="container-sm">
                         @if (ServerItem is not null)
                         {
-                            <EditForm Model="ServerItem" OnValidSubmit="SubmitForm" FormName="EditServer">
+                            <EditForm @ref="ServerEditForm" Model="ServerItem" OnValidSubmit="SubmitForm" FormName="EditServer">
                                 <DataAnnotationsValidator></DataAnnotationsValidator>
                                 <InputNumber @bind-Value="ServerItem.Id" hidden></InputNumber>
                                 <InputHidden @bind-Value="ServerItem.RowId"></InputHidden>
@@ -33,7 +33,7 @@
                                     <div class="col-md-6 col-12">
                                         <label for="ServerItem.Region" class="form-label">Server Region</label>
                                         <InputText @bind-Value="ServerItem.Region" class="form-control"></InputText>
-                                    </div>
+                                    </div> 
                                     <div class="col-md-6 col-12 ">
                                         <ValidationMessage For="() => ServerItem.Region"></ValidationMessage>
                                     </div>
@@ -44,12 +44,6 @@
                                             <InputCheckbox @bind-Value="ServerItem.ActiveStatus" class="form-check-input"></InputCheckbox>
                                             <label class="form-check-label" for="ServerItem.ActiveStatus">Is Active?</label>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-12">
-                                        <button type="submit" class="btn btn-primary">Submit Changes</button>
-                                        <a class="btn btn-danger ml-3" href="/servers">Back To List</a>
                                     </div>
                                 </div>
                             </EditForm>
@@ -64,7 +58,7 @@
                 </div>
                 <div class="modal-footer">
                     <button @onclick="HandleCloseModal" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary">Save Changes</button>
+                    <button @onclick="SubmitForm" type="button" class="btn btn-primary">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -84,6 +78,8 @@
     [Parameter]
     public EventCallback ModalClosed { get; set; }
 
+    private EditForm ServerEditForm;
+
     private Server? ServerItem { get; set; }
 
     protected override async Task OnParametersSetAsync()
@@ -101,6 +97,8 @@
 
     private async Task HandleCloseModal()
     {
+        await js.InvokeVoidAsync("hideEditModal", "editModal");
+
         Display = false;
         ServerId = null;
         ServerItem = null;
@@ -109,11 +107,14 @@
 
     private async Task SubmitForm()
     {
-        if (ServerItem is not null)
+        if (ServerEditForm.EditContext?.Validate() ?? false)
         {
-            ServerRepository.Update(ServerItem);
-            await ServerRepository.Save();
-            navigationManager.NavigateTo("/servers");
+            if (ServerItem is not null)
+            {
+                ServerRepository.Update(ServerItem);
+                await ServerRepository.Save();
+                await HandleCloseModal();
+            }
         }
     }
 }

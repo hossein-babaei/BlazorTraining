@@ -1,0 +1,72 @@
+﻿@using BlazorTraining.Domain.ViewModels
+@inject IServerRepository ServerRepository
+@rendermode InteractiveServer
+
+<li class="list-group-item">
+    <div class="row">
+        <div class="col-md-9">
+            <b>@Index) </b> The <b>@Item.Name</b> server located in <b>@Item.Region</b> and
+            <span class="@(Item.ActiveStatus ? "text-success" : "text-danger")">@(Item.ActiveStatus ? "Active" : "Not Active")</span>
+        </div>
+        <div class="col-md-1 d-flex justify-content-around">
+            <a class="btn btn-info btn-sm" href="/servers/edit/@Item.Id">Edit</a>
+        </div>
+        <div class="col-md-1 d-flex justify-content-around">
+            <button class="btn btn-info btn-sm" @onclick="() => GetEditModal(Item.Id)">Edit 2</button>
+        </div>
+        <div class="col-md-1 d-flex justify-content-around">
+            <button class="btn btn-outline-danger btn-sm" type="button" @onclick="() => DeleteServer(Item.Id)">Delete</button>
+            @* <EditForm Model="Item" OnSubmit="() => DeleteServer(Item.Id)" FormName="@($"DeleteServer-{Item.Id}")">
+                            <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
+                        </EditForm> *@
+        </div>
+    </div>
+</li>
+
+@code {
+    [Parameter]
+    public required int Index { get; set; }
+
+    [Parameter]
+    public required Server Item { get; set; }
+
+    [Parameter]
+    public int? EditServerId { get; set; }
+
+    [Parameter]
+    public bool ShowEditModalComponent { get; set; }
+
+    [Parameter]
+    public EventCallback ServerItemChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<ServerEditModalParams> EditModalParametersChanged { get; set; }
+
+    private async Task DeleteServer(int serverId)
+    {
+        var item = await ServerRepository.Get(serverId);
+        if (item is not null)
+        {
+            ServerRepository.Delete(item);
+            try
+            {
+                await ServerRepository.Save();
+                await ServerItemChanged.InvokeAsync();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+    }
+
+    private async Task GetEditModal(int serverId)
+    {
+        var data = new ServerEditModalParams
+        {
+            ServerId = serverId,
+            ShowEditModalComponent = true
+        };
+        await EditModalParametersChanged.InvokeAsync(data);
+    }
+}
