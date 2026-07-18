@@ -1,0 +1,113 @@
+﻿@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Web
+@inject PromptModalService ModalService
+
+@if (_isVisible)
+{
+    <div class="modal fade show" style="display: block; background: rgba(0,0,0,0.5);"
+         tabindex="-1" role="dialog" @onclick="OnOverlayClick">
+        <div class="modal-dialog modal-dialog-centered" @onclick:stopPropagation>
+            <div class="modal-content">
+                <!-- Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title">@_config?.Title</h5>
+                    <button type="button" class="btn-close" @onclick="Close"
+                            aria-label="Close"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body">
+                    @_config?.Message
+
+                    @if (_config?.Type == ModalType.Prompt)
+                    {
+                        <input type="text" class="form-control mt-3"
+                               placeholder="@_config.PromptPlaceholder"
+                               @bind="PromptInput"
+                               @bind:event="oninput" />
+                    }
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer">
+                    @if (_config?.Type != ModalType.Alert)
+                    {
+                        <button type="button" class="btn @_config?.CancelButtonClass"
+                                @onclick="OnCancel">
+                            @_config?.CancelText
+                        </button>
+                    }
+                    <button type="button" class="btn @_config?.ConfirmButtonClass"
+                            @onclick="OnConfirm">
+                        @_config?.ConfirmText
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private PromptModalConfig? _config;
+    private bool _isVisible;
+    private string PromptInput = "";
+
+    protected override void OnInitialized()
+    {
+        ModalService.OnShow += Show;
+        ModalService.OnHide += Hide;
+    }
+
+    private void Show(PromptModalConfig config)
+    {
+        _config = config;
+        _isVisible = true;
+        PromptInput = _config?.PromptValue ?? "";
+        StateHasChanged();
+    }
+
+    private void Hide()
+    {
+        _isVisible = false;
+        StateHasChanged();
+    }
+
+    private async Task OnConfirm()
+    {
+        if (_config == null) return;
+
+        if (_config.Type == ModalType.Prompt && _config.OnPromptConfirm != null)
+        {
+            await _config.OnPromptConfirm.Invoke(PromptInput);
+        }
+        else if (_config.OnConfirm != null)
+        {
+            await _config.OnConfirm.Invoke();
+        }
+
+        Hide();
+    }
+
+    private async Task OnCancel()
+    {
+        if (_config?.OnCancel != null)
+            await _config.OnCancel.Invoke();
+
+        Hide();
+    }
+
+    private void Close() => Hide();
+
+    private async Task OnOverlayClick()
+    {
+        // Only close if not Alert type
+        if (_config?.Type != ModalType.Alert)
+            Hide();
+    }
+
+    public void Dispose()
+    {
+        ModalService.OnShow -= Show;
+        ModalService.OnHide -= Hide;
+    }
+}

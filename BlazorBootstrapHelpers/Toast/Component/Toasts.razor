@@ -1,0 +1,103 @@
+﻿@inject ToastService ToastService
+
+<div class="toast-container position-fixed @GetPositionClass() p-3" style="z-index: 9999;">
+    @foreach (var toast in _toasts)
+    {
+        <div class="toast show @GetToastClass(toast.Type)" role="alert"
+             aria-live="assertive" aria-atomic="true"
+             style="min-width: 300px; @(toast.AutoHide ? "" : "opacity: 1;")"
+             @onclick="() => RemoveToast(toast)">
+            <div class="toast-header @GetHeaderClass(toast.Type)">
+                @if (!string.IsNullOrEmpty(toast.Icon))
+                {
+                    <i class="bi @toast.Icon me-2"></i>
+                }
+                <strong class="me-auto">@toast.Title</strong>
+                @if (toast.AutoHide)
+                {
+                    <small class="text-muted">just now</small>
+                }
+                <button type="button" class="btn-close" @onclick="() => RemoveToast(toast)"
+                        aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                @toast.Message
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<ToastMessage> _toasts = new();
+
+    protected override void OnInitialized()
+    {
+        ToastService.OnShow += ShowToast;
+        ToastService.OnClear += ClearAllToasts;
+    }
+
+    private void ShowToast(ToastMessage message)
+    {
+        _toasts.Add(message);
+        StateHasChanged();
+
+        if (message.AutoHide)
+        {
+            Task.Run(async () =>
+            {
+                await Task.Delay(message.AutoHideDelay);
+                await InvokeAsync(() => RemoveToast(message));
+            });
+        }
+    }
+
+    private void RemoveToast(ToastMessage toast)
+    {
+        if (_toasts.Contains(toast))
+        {
+            _toasts.Remove(toast);
+            StateHasChanged();
+        }
+    }
+
+    private void ClearAllToasts()
+    {
+        _toasts.Clear();
+        StateHasChanged();
+    }
+
+    private string GetToastClass(ToastType type) => type switch
+    {
+        ToastType.Success => "bg-success text-white",
+        ToastType.Error => "bg-danger text-white",
+        ToastType.Warning => "bg-warning text-dark",
+        ToastType.Info => "bg-info text-white",
+        _ => ""
+    };
+
+    private string GetHeaderClass(ToastType type) => type switch
+    {
+        ToastType.Success => "bg-success text-white",
+        ToastType.Error => "bg-danger text-white",
+        ToastType.Warning => "bg-warning text-dark",
+        ToastType.Info => "bg-info text-white",
+        _ => ""
+    };
+
+    private string GetPositionClass() => _toasts.LastOrDefault()?.Position switch
+    {
+        ToastPosition.TopRight => "top-0 end-0",
+        ToastPosition.TopLeft => "top-0 start-0",
+        ToastPosition.BottomRight => "bottom-0 end-0",
+        ToastPosition.BottomLeft => "bottom-0 start-0",
+        ToastPosition.TopCenter => "top-0 start-50 translate-middle-x",
+        ToastPosition.BottomCenter => "bottom-0 start-50 translate-middle-x",
+        _ => "bottom-0 end-0"
+    };
+
+    public void Dispose()
+    {
+        ToastService.OnShow -= ShowToast;
+        ToastService.OnClear -= ClearAllToasts;
+    }
+}

@@ -1,10 +1,12 @@
 ﻿@using BlazorTraining.Domain.ViewModels
 @inject IServerRepository ServerRepository
+@inject ToastService ToastService
+@inject PromptModalService PromptModalService
 @rendermode InteractiveServer
 
 <li class="list-group-item">
     <div class="row">
-        <div class="col-md-9">
+        <div class="col-md-8">
             <b>@Index) </b> The <b>@Item.Name</b> server located in <b>@Item.Region</b> and
             <span class="@(Item.ActiveStatus ? "text-success" : "text-danger")">@(Item.ActiveStatus ? "Active" : "Not Active")</span>
         </div>
@@ -15,7 +17,10 @@
             <button class="btn btn-info btn-sm" @onclick="() => GetEditModal(Item.Id)">Edit 2</button>
         </div>
         <div class="col-md-1 d-flex justify-content-around">
-            <button class="btn btn-outline-danger btn-sm" type="button" @onclick="() => DeleteServer(Item.Id)">Delete</button>
+            <button class="btn btn-outline-danger btn-sm" type="button" @onclick="() => ShowDeleteConfirm(Item.Id)">Delete</button>
+
+            @* <button class="btn btn-outline-danger btn-sm" type="button" @onclick="() => DeleteServer(Item.Id)">Delete</button> *@
+
             @* <EditForm Model="Item" OnSubmit="() => DeleteServer(Item.Id)" FormName="@($"DeleteServer-{Item.Id}")">
                             <button class="btn btn-outline-danger btn-sm" type="submit">Delete</button>
                         </EditForm> *@
@@ -42,23 +47,62 @@
     [Parameter]
     public EventCallback<ServerEditModalParams> EditModalParametersChanged { get; set; }
 
-    private async Task DeleteServer(int serverId)
+    private async Task ShowDeleteConfirm(int serverId)
     {
-        var item = await ServerRepository.Get(serverId);
-        if (item is not null)
+        var config = new PromptModalConfig
         {
-            ServerRepository.Delete(item);
-            try
+            Title = "Delete Item",
+            Message = "Are you sure you want to delete this item? This action cannot be undone.",
+            ConfirmText = "Delete",
+            CancelText = "Cancel",
+            ConfirmButtonClass = "btn-danger",
+            Type = ModalType.Confirmation,
+            OnConfirm = async () =>
             {
-                await ServerRepository.Save();
-                await ServerItemChanged.InvokeAsync();
+                var item = await ServerRepository.Get(serverId);
+                if (item is not null)
+                {
+                    ServerRepository.Delete(item);
+                    try
+                    {
+                        await ServerRepository.Save();
+                        await ServerItemChanged.InvokeAsync();
+                        ToastService.ShowSuccess("✅ Item deleted successfully!");
+                    }
+                    catch (Exception ex)
+                    {
+                        ToastService.ShowError($"⚠️ An Error occured. details {ex.Message}");
+                        throw ex;
+                    }
+                }
+                else
+                {
+                    ToastService.ShowError("⚠️ Server item not found.");
+                }
+                await Task.CompletedTask;
             }
-            catch (Exception)
-            {
-                throw;
-            }
-        }
+        };
+
+        PromptModalService.Show(config);
     }
+
+    // private async Task DeleteServer(int serverId)
+    // {
+    //     var item = await ServerRepository.Get(serverId);
+    //     if (item is not null)
+    //     {
+    //         ServerRepository.Delete(item);
+    //         try
+    //         {
+    //             await ServerRepository.Save();
+    //             await ServerItemChanged.InvokeAsync();
+    //         }
+    //         catch (Exception)
+    //         {
+    //             throw;
+    //         }
+    //     }
+    // }
 
     private async Task GetEditModal(int serverId)
     {

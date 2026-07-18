@@ -1,4 +1,5 @@
 <Solution>
+  <Project Path="BlazorBootstrapHelpers/BlazorBootstrapHelpers.csproj" Id="f5e832ef-7660-4a83-98c8-74675d10c9c8" />
   <Project Path="BlazorTraining.Data/BlazorTraining.Data.csproj" />
   <Project Path="BlazorTraining.Domain/BlazorTraining.Domain.csproj" />
   <Project Path="BlazorTraining.IoC/BlazorTraining.IoC.csproj" />

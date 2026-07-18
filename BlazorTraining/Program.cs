@@ -1,3 +1,4 @@
+using BlazorBootstrapHelpers;
 using BlazorTraining.Components;
 using BlazorTraining.Data.Context;
 using BlazorTraining.Data.DataSeeder;
@@ -18,6 +19,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options
     })
 );
 
+builder.Services.AddBlazorBootstrapHelpers();
 builder.Services.RegisterServices();
 
 var app = builder.Build();
@@ -33,6 +35,8 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 app.UseHttpsRedirection();
 
 app.UseAntiforgery();
+
+app.UseBlazorBootstrapHelpers();
 
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
