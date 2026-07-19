@@ -1,12 +1,18 @@
 ﻿@inject ToastService ToastService
 
 <div class="toast-container position-fixed @GetPositionClass() p-3" style="z-index: 9999;">
-    @foreach (var toast in _toasts)
+    @foreach (var item in _toasts)
     {
-        <div class="toast show @GetToastClass(toast.Type)" role="alert"
+        var toast = item.Config;
+        var classes = new List<string> { "toast" };
+        if (toast.Animation) classes.Add("fade");
+        if (item.IsShown) classes.Add("show");
+        if (!string.IsNullOrEmpty(toast.CssClass)) classes.Add(toast.CssClass);
+
+        <div class="@string.Join(' ', classes) @GetToastClass(toast.Type)" role="alert"
              aria-live="assertive" aria-atomic="true"
              style="min-width: 300px; @(toast.AutoHide ? "" : "opacity: 1;")"
-             @onclick="() => RemoveToast(toast)">
+             @onclick="() => RemoveToast(item)">
             <div class="toast-header @GetHeaderClass(toast.Type)">
                 @if (!string.IsNullOrEmpty(toast.Icon))
                 {
@@ -17,8 +23,7 @@
                 {
                     <small class="text-muted">just now</small>
                 }
-                <button type="button" class="btn-close" @onclick="() => RemoveToast(toast)"
-                        aria-label="Close"></button>
+                <button type="button" class="btn-close" @onclick="(e) => { e.StopPropagation(); RemoveToast(item); }" aria-label="Close"></button>
             </div>
             <div class="toast-body">
                 @toast.Message
@@ -28,7 +33,14 @@
 </div>
 
 @code {
-    private List<ToastMessage> _toasts = new();
+    private class ToastItem
+    {
+        public ToastConfig Config { get; set; } = default!;
+        public bool IsShown { get; set; }
+        public CancellationTokenSource? Cts { get; set; }
+    }
+
+    private List<ToastItem> _toasts = new();
 
     protected override void OnInitialized()
     {
@@ -36,28 +48,56 @@
         ToastService.OnClear += ClearAllToasts;
     }
 
-    private void ShowToast(ToastMessage message)
+    private void ShowToast(ToastConfig message)
     {
-        _toasts.Add(message);
+        var item = new ToastItem { Config = message, IsShown = false };
+        _toasts.Add(item);
         StateHasChanged();
 
-        if (message.AutoHide)
+        // Trigger CSS transition: render first, then set IsShown = true
+        _ = Task.Run(async () =>
         {
-            Task.Run(async () =>
+            // Small delay to ensure element is rendered so CSS transition runs
+            await Task.Delay(100);
+            item.IsShown = true;
+            await InvokeAsync(StateHasChanged);
+
+            if (message.AutoHide)
             {
-                await Task.Delay(message.AutoHideDelay);
-                await InvokeAsync(() => RemoveToast(message));
-            });
-        }
+                try
+                {
+                    item.Cts = new CancellationTokenSource();
+                    await Task.Delay(message.AutoHideDelay, item.Cts.Token);
+                    await InvokeAsync(() => HideToast(item));
+                }
+                catch (TaskCanceledException) { }
+            }
+        });
     }
 
-    private void RemoveToast(ToastMessage toast)
+    private void RemoveToast(ToastItem item)
     {
-        if (_toasts.Contains(toast))
+        // user-initiated remove -> hide with animation if enabled
+        _ = HideToast(item);
+    }
+
+    private async Task HideToast(ToastItem item)
+    {
+        if (!_toasts.Contains(item)) return;
+
+        // cancel any pending autohide
+        item.Cts?.Cancel();
+
+        if (item.Config.Animation)
         {
-            _toasts.Remove(toast);
-            StateHasChanged();
+            // trigger hide transition
+            item.IsShown = false;
+            await InvokeAsync(StateHasChanged);
+            await Task.Delay(item.Config.AnimationDuration);
         }
+
+        _toasts.Remove(item);
+        await InvokeAsync(StateHasChanged);
     }
 
     private void ClearAllToasts()
@@ -84,7 +124,7 @@
         _ => ""
     };
 
-    private string GetPositionClass() => _toasts.LastOrDefault()?.Position switch
+    private string GetPositionClass() => _toasts.LastOrDefault()?.Config.Position switch
     {
         ToastPosition.TopRight => "top-0 end-0",
         ToastPosition.TopLeft => "top-0 start-0",

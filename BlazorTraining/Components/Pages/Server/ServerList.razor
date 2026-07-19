@@ -60,14 +60,14 @@ else
 <EditServerModal Display="showEditModalComponent" ServerId="editServerId" ModalClosed="EditModalClosed"></EditServerModal>
 
 @code {
-    private List<Server>? servers;
-    private List<string>? serverRegionNames;
-    private string selectedRegionName = "All";
-    private string searchKeyword = string.Empty;
-    private bool showSearchPreloader = false;
+    List<Server>? servers;
+    List<string>? serverRegionNames;
+    string selectedRegionName = "All";
+    string searchKeyword = string.Empty;
+    bool showSearchPreloader = false;
 
-    private int? editServerId;
-    private bool showEditModalComponent = false;
+    int? editServerId;
+    bool showEditModalComponent = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -76,7 +76,7 @@ else
         serverRegionNames ??= await ServerRepository.GetServerRegionNames();
     }
 
-    private async Task GetServerList()
+    async Task GetServerList()
     {
         if (selectedRegionName == "All")
             servers = await ServerRepository.GetAll();
@@ -84,13 +84,13 @@ else
             servers = await ServerRepository.GetAll(selectedRegionName);
     }
 
-    private async Task FilterByRegionName(string regionName)
+    async Task FilterByRegionName(string regionName)
     {
         selectedRegionName = regionName;
         await GetServerList();
     }
 
-    private async Task SearchServersWithButton()
+    async Task SearchServersWithButton()
     {
         showSearchPreloader = true;
 
@@ -100,7 +100,7 @@ else
         showSearchPreloader = false;
     }
 
-    private async Task SearchServersWithKeyDown()
+    async Task SearchServersWithKeyDown()
     {
         if (searchKeyword.Length > 3 || searchKeyword.Length == 0)
         {
@@ -114,13 +114,13 @@ else
         showSearchPreloader = false;
     }
 
-    private void EditModalParametersChanged(ServerEditModalParams data)
+    void EditModalParametersChanged(ServerEditModalParams data)
     {
         editServerId = data.ServerId;
         showEditModalComponent = data.ShowEditModalComponent;
     }
 
-    private async Task EditModalClosed()
+    async Task EditModalClosed()
     {
         editServerId = null;
         showEditModalComponent = false;

@@ -1,5 +1,6 @@
 ﻿@inject NavigationManager navigationManager
 @inject IServerRepository ServerRepository
+@inject ToastService ToastService
 @inject IJSRuntime js
 @rendermode InteractiveServer
 
@@ -87,18 +88,19 @@
         ServerItem ??= ServerId.HasValue ? await ServerRepository.Get(ServerId.Value) : null;
     }
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (Display)
-            js.InvokeVoidAsync("showEditModal", "editModal");
+            await js.InvokeVoidAsync("showModal", "editModal");
 
-        return base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     private async Task HandleCloseModal()
     {
-        await js.InvokeVoidAsync("hideEditModal", "editModal");
+        await js.InvokeVoidAsync("hideModal", "editModal");
 
+        await Task.Delay(150);
         Display = false;
         ServerId = null;
         ServerItem = null;
@@ -112,9 +114,22 @@
             if (ServerItem is not null)
             {
                 ServerRepository.Update(ServerItem);
-                await ServerRepository.Save();
-                await HandleCloseModal();
+                try
+                {
+                    await ServerRepository.Save();
+                    await HandleCloseModal();
+                    ToastService.ShowSuccess("✅ Server updated successfully!");
+                }
+                catch (Exception ex)
+                {
+                    ToastService.ShowError($"⚠️ An Error occured. details {ex.Message}");
+                    throw ex;
+                }
             }
+        }
+        else
+        {
+            ToastService.ShowError("⚠️ Form not valid. please check your inputed data.");
         }
     }
 }

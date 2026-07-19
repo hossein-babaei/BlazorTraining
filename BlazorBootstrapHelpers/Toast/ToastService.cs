@@ -2,12 +2,12 @@
 {
     public class ToastService
     {
-        public event Action<ToastMessage>? OnShow;
+        public event Action<ToastConfig>? OnShow;
         public event Action? OnClear;
 
         public void ShowSuccess(string message, string? title = null, bool autoHide = true, ToastPosition position = ToastPosition.BottomCenter)
         {
-            Show(new ToastMessage
+            Show(new ToastConfig
             {
                 Type = ToastType.Success,
                 Title = title ?? "Success",
@@ -20,7 +20,7 @@
 
         public void ShowError(string message, string? title = null, bool autoHide = true, ToastPosition position = ToastPosition.BottomCenter)
         {
-            Show(new ToastMessage
+            Show(new ToastConfig
             {
                 Type = ToastType.Error,
                 Title = title ?? "Error",
@@ -33,7 +33,7 @@
 
         public void ShowWarning(string message, string? title = null, bool autoHide = true, ToastPosition position = ToastPosition.BottomCenter)
         {
-            Show(new ToastMessage
+            Show(new ToastConfig
             {
                 Type = ToastType.Warning,
                 Title = title ?? "Warning",
@@ -46,7 +46,7 @@
 
         public void ShowInfo(string message, string? title = null, bool autoHide = true, ToastPosition position = ToastPosition.BottomCenter)
         {
-            Show(new ToastMessage
+            Show(new ToastConfig
             {
                 Type = ToastType.Info,
                 Title = title ?? "Information",
@@ -57,7 +57,7 @@
             });
         }
 
-        public void Show(ToastMessage message)
+        public void Show(ToastConfig message)
         {
             OnShow?.Invoke(message);
         }

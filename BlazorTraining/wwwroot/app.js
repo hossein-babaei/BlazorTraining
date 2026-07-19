@@ -1,14 +1,12 @@
-﻿// JavaScript for EditServerModal component
-
-window.showEditModal = (modalId) => {
-    let editModal = bootstrap.Modal.getOrCreateInstance((document.getElementById(`${modalId}`)), {
+﻿window.showModal = function (modalId) {
+    let modal = bootstrap.Modal.getOrCreateInstance((document.getElementById(`${modalId}`)), {
         backdrop: 'static', focus: true, keyboard: false
     });
 
-    editModal.show();
+    modal.show();
 };
 
-window.hideEditModal = function (modalId) {
+window.hideModal = function (modalId) {
     const modalElement = document.getElementById(modalId);
     if (modalElement) {
         const modal = bootstrap.Modal.getInstance(modalElement);
