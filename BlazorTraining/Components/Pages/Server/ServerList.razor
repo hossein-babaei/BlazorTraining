@@ -55,7 +55,12 @@ else
     </ul>
 }
 
-<ServerListContainer Servers="servers" EditServerId="editServerId" ShowEditModalComponent="showEditModalComponent" ServerChanged="GetServerList" EditModalParametersChanged="EditModalParametersChanged"></ServerListContainer>
+<CascadingValue Name="ShowEditModalComponent" Value="showEditModalComponent">
+    <CascadingValue Name="EditServerId" Value="editServerId">
+        <ServerListContainer Servers="servers" ServerChanged="GetServerList" EditModalParametersChanged="EditModalParametersChanged"></ServerListContainer>
+    </CascadingValue>
+</CascadingValue>
+
 
 <EditServerModal Display="showEditModalComponent" ServerId="editServerId" ModalClosed="EditModalClosed"></EditServerModal>
 

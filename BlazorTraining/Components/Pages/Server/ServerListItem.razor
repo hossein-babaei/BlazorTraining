@@ -35,10 +35,10 @@
     [Parameter]
     public required Server Item { get; set; }
 
-    [Parameter]
+    [CascadingParameter(Name = "EditServerId")]
     public int? EditServerId { get; set; }
 
-    [Parameter]
+    [CascadingParameter(Name = "ShowEditModalComponent")]
     public bool ShowEditModalComponent { get; set; }
 
     [Parameter]

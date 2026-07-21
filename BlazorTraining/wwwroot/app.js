@@ -1,5 +1,5 @@
 ﻿window.showModal = function (modalId) {
-    let modal = bootstrap.Modal.getOrCreateInstance((document.getElementById(`${modalId}`)), {
+    let modal = bootstrap.Modal.getOrCreateInstance((document.getElementById(modalId)), {
         backdrop: 'static', focus: true, keyboard: false
     });
 

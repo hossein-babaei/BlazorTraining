@@ -18,7 +18,7 @@ else
     <ul class="list-group">
         @foreach (var item in Servers)
         {
-            <ServerListItem Index="i" Item="item" ServerItemChanged="ServerChanged" EditServerId="EditServerId" ShowEditModalComponent="ShowEditModalComponent" EditModalParametersChanged="EditModalParametersChanged"></ServerListItem>
+            <ServerListItem Index="i" Item="item" ServerItemChanged="ServerChanged" EditModalParametersChanged="EditModalParametersChanged"></ServerListItem>
             i++;
         }
     </ul>
@@ -27,12 +27,6 @@ else
 @code {
     [Parameter]
     public List<Server>? Servers { get; set; }
-
-    [Parameter]
-    public int? EditServerId { get; set; }
-
-    [Parameter]
-    public bool ShowEditModalComponent { get; set; }
 
     [Parameter]
     public EventCallback ServerChanged { get; set; }
